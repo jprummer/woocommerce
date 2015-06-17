@@ -973,14 +973,7 @@ class WC_Meta_Box_Product_Data {
 				$unique_sku = wc_product_has_unique_sku( $post_id, $new_sku );
 
 				if ( ! $unique_sku ) {
-					// set woocommerce_unique_skus filter true to require unique variation skus and false to allow non-unique variation skus.
-					$unique_skus = apply_filters( 'woocommerce_unique_skus' , true );
-					if ( $unique_skus == true ) {
-						WC_Admin_Meta_Boxes::add_error( __( 'Variation SKU must be unique.', 'woocommerce' ) );
-					} else {
-						WC_Admin_Meta_Boxes::add_error( __( 'Warning: You added a non-unique Variation SKU.', 'woocommerce' ) );
-						update_post_meta( $variation_id, '_sku', $new_sku );
-					}
+					WC_Admin_Meta_Boxes::add_error( __( 'Product SKU must be unique.', 'woocommerce' ) );
 				} else {
 					update_post_meta( $post_id, '_sku', $new_sku );
 				}
@@ -1439,7 +1432,15 @@ class WC_Meta_Box_Product_Data {
 						$unique_sku = wc_product_has_unique_sku( $variation_id, $new_sku );
 
 						if ( ! $unique_sku ) {
-							WC_Admin_Meta_Boxes::add_error( __( 'Variation SKU must be unique.', 'woocommerce' ) );
+							// woocommerce_unique_sku filter allows user to choose between unique and non-unique skus.
+							// Unique skus are required by default but can be set to false with the filter.
+							$unique_skus = apply_filters('woocommerce_unique_skus', true);
+							if($unique_skus == true){
+								WC_Admin_Meta_Boxes::add_error( __( 'Variation SKU must be unique.', 'woocommerce' ) );
+							} else {
+								WC_Admin_Meta_Boxes::add_error( __( 'Warning: You added a non-unique variation sku.', 'woocommerce' ) );
+								update_post_meta( $variation_id, '_sku', $new_sku );
+							}
 						} else {
 							update_post_meta( $variation_id, '_sku', $new_sku );
 						}
